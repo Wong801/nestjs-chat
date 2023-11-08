@@ -9,7 +9,6 @@ import { ConfigModule } from '@nestjs/config';
   controllers: [ApiController],
   providers: [ApiService],
   imports: [
-    UserModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async () => ({
@@ -17,6 +16,7 @@ import { ConfigModule } from '@nestjs/config';
         signOptions: { expiresIn: '7d' },
       }),
     }),
+    UserModule,
   ],
 })
 export class ApiModule {}
