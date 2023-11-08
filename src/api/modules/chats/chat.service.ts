@@ -15,16 +15,18 @@ export class ChatService {
   ) {}
 
   async createRoom(clientId: string, { roomId, userIds }: JoinRoomDto) {
-    const room = await this.chatRoomModel.findOne({
-      $or: [
-        {
-          users: userIds.map((userId) => new Types.ObjectId(userId)),
-        },
-        {
-          _id: new Types.ObjectId(roomId),
-        },
-      ],
-    });
+    const room = await this.chatRoomModel
+      .findOne({
+        $or: [
+          {
+            users: userIds.map((userId) => new Types.ObjectId(userId)),
+          },
+          {
+            _id: new Types.ObjectId(roomId),
+          },
+        ],
+      })
+      .populate('chat');
 
     if (!room) {
       return await this.chatRoomModel.create({
@@ -36,11 +38,19 @@ export class ChatService {
     return room;
   }
 
-  async saveChat({ message, from, reply }: SendMessageDto) {
-    return await this.chatModel.create({
+  async saveChat({ message, from, reply, roomId }: SendMessageDto) {
+    const chat = await this.chatModel.create({
       from,
       message,
       replied: reply,
     });
+
+    await this.chatRoomModel.findByIdAndUpdate(roomId, {
+      $push: {
+        chats: [chat],
+      },
+    });
+
+    return chat;
   }
 }

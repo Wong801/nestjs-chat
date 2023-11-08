@@ -4,6 +4,7 @@ export interface JoinRoomDto {
 }
 
 export interface SendMessageDto {
+  roomId: string;
   from: string;
   message: string;
   reply?: string;
